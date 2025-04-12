@@ -1,6 +1,3 @@
-// src/app/components/TodoDetail.js
-'use client';
-
 import { useState, useEffect } from 'react';
 
 export default function TodoDetail({ todo, onUpdate, onDelete }) {

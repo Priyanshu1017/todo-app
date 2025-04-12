@@ -1,6 +1,4 @@
-// src/app/components/TodoItem.js
 export default function TodoItem({ todo, onTodoClick, isActive }) {
-    // Format date
     const formatDate = (dateString) => {
         if (!dateString) return '';
         const date = new Date(dateString);

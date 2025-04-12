@@ -1,6 +1,3 @@
-// src/app/components/TodoList.js
-'use client';
-
 import TodoItem from './TodoItem';
 
 export default function TodoList({ todos, onTodoSelect, selectedTodoId }) {

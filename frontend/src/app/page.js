@@ -1,6 +1,4 @@
-// src/app/page.js
 'use client';
-
 import { useState, useEffect } from 'react';
 import TodoList from './components/TodoList';
 import TodoEditor from './components/TodoEditor';

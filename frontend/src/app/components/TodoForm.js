@@ -1,6 +1,3 @@
-// src/app/components/TodoForm.js
-'use client';
-
 import { useState } from 'react';
 
 export default function TodoForm({ onAddTodo }) {
