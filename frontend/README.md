@@ -4,6 +4,9 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 First, run the development server:
 
+#First use 
+cd todo-app/frontend
+then run the following command:
 ```bash
 npm run dev
 # or
