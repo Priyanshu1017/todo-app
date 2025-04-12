@@ -1,5 +1,5 @@
-// models/Todo.js - Todo model (modified from your existing model)
-const mongoose = require('mongoose');
+// 2. src/lib/models/Todo.js
+import mongoose from 'mongoose';
 
 const TodoSchema = new mongoose.Schema(
     {
@@ -21,4 +21,5 @@ const TodoSchema = new mongoose.Schema(
     }
 );
 
-module.exports = mongoose.model('Todo', TodoSchema);
+// Check if the model is already defined to prevent OverwriteModelError
+export default mongoose.models.Todo || mongoose.model('Todo', TodoSchema);

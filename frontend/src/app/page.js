@@ -5,11 +5,23 @@ import { useState, useEffect } from 'react';
 import TodoList from './components/TodoList';
 import TodoEditor from './components/TodoEditor';
 import { Search } from 'lucide-react';
+import axios from "axios";
 
 export default function Home() {
     const [todos, setTodos] = useState([]);
     const [selectedTodo, setSelectedTodo] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
+
+
+    const fetchTodos = async () => {
+        try {
+            const response = await axios.get("/api");
+            setTodoData(response.data.todos);
+            localStorage.setItem("todos", JSON.stringify(response.data.todos));
+        } catch (error) {
+            toast.error("Failed to load todos.");
+        }
+    };
 
     // Use local storage to persist todos
     useEffect(() => {
@@ -22,7 +34,11 @@ export default function Home() {
             if (parsedTodos.length > 0 && !selectedTodo) {
                 setSelectedTodo(parsedTodos[0]);
             }
-        } else {
+        } 
+        else if (!storedTodos) {
+            fetchTodos();
+        }
+        else {
             // Initialize with a sample todo
             const sampleTodo = {
                 _id: Date.now().toString(),
