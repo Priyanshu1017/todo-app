@@ -6,7 +6,7 @@ First, run the development server:
 
 ## First use 
 
-cd todo-app/frontend
+"cd todo-app" 
 then run the following command:
 
 ```bash
