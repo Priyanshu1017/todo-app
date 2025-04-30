@@ -21,7 +21,7 @@ export default function TodoShow({ todo, onEdit, onDelete }) {
 
     return (
         <div className="max-w-3xl mx-auto">
-            <h3 className='flex  justify-center items-center text-2xl font-larger w-full focus:outline-none'>Your Todo's</h3>
+            <h3 className="flex  justify-center items-center text-2xl font-larger w-full focus:outline-none">Your Todo&apos;s</h3>
             <div className="bg-white p-6 rounded-lg border border-green-200 shadow-sm">
                 <div className="flex justify-between items-center mb-4">
                     <h1 className="text-2xl font-bold text-black">{todo.title}</h1>
@@ -48,6 +48,7 @@ export default function TodoShow({ todo, onEdit, onDelete }) {
                 </div>
 
                 <div className="border-t border-green-200 pt-4 text-black">
+                    <p>Here&apos;s the content of the selected todo:</p>
                     <p className="whitespace-pre-wrap">{todo.description}</p>
                 </div>
             </div>

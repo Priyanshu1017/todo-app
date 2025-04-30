@@ -109,7 +109,7 @@ export default function HomePage() {
             default:
                 return (
                     <div className="flex flex-col items-center justify-center h-full">
-                        <p className="text-gray-500">Select a todo to view details or add a new one by clicking on "+Todo"</p>
+                        <p className="text-gray-500">Select a todo to view details or add a new one by clicking on &quot;+Todo&quot;</p>
                     </div>
                 );
         }
