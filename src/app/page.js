@@ -1,103 +1,174 @@
-import Image from "next/image";
+'use client';
+
+import { useState, useEffect } from 'react';
+import TodoList from './components/TodoList';
+import TodoEditor from './components/TodoEditor';
+import TodoShow from './components/TodoShow';
+import { Search } from 'lucide-react';
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [todos, setTodos] = useState([]);
+  const [selectedTodo, setSelectedTodo] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentView, setCurrentView] = useState('list'); // 'list', 'editor', 'show'
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const fetchTodos = async () => {
+    try {
+      // const response = await axios.get("/api");
+      // setTodos(response.data.todos);
+      localStorage.setItem("todos", JSON.stringify(response.data.todos));
+    } catch (error) {
+      console.error("Failed to load todos:", error);
+    }
+  };
+
+  useEffect(() => {
+    const storedTodos = localStorage.getItem('todos');
+    if (storedTodos) {
+      const parsedTodos = JSON.parse(storedTodos);
+      setTodos(parsedTodos);
+    } else {
+      fetchTodos();
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('todos', JSON.stringify(todos));
+  }, [todos]);
+
+  const handleTodoSelect = (todo) => {
+    setSelectedTodo(todo);
+    setCurrentView('show'); // Switch to show view when a todo is selected
+  };
+
+  const handleAddTodo = () => {
+    const newTodo = {
+      _id: Date.now().toString(),
+      title: '',
+      description: '',
+      createdAt: new Date().toISOString(),
+      isNew: true
+    };
+    setSelectedTodo(newTodo);
+    setCurrentView('editor'); // Switch to editor view when adding a new todo
+  };
+
+  const handleTodoUpdate = (updatedTodo) => {
+    const exists = todos.some(todo => todo._id === updatedTodo._id);
+    const updatedTodos = exists
+      ? todos.map(todo => todo._id === updatedTodo._id ? updatedTodo : todo)
+      : [updatedTodo, ...todos];
+
+    setTodos(updatedTodos);
+    setSelectedTodo(updatedTodo);
+    setCurrentView('show'); // Return to show view after update
+  };
+
+  const handleTodoDelete = (todoId) => {
+    const updatedTodos = todos.filter(todo => todo._id !== todoId);
+    setTodos(updatedTodos);
+
+    if (selectedTodo && selectedTodo._id === todoId) {
+      setSelectedTodo(updatedTodos.length > 0 ? updatedTodos[0] : null);
+      setCurrentView('list'); // Go back to list view if the selected todo is deleted
+    }
+  };
+
+  const handleSubmitTodo = (updatedTodo) => {
+    if (!updatedTodo.title.trim() || !updatedTodo.description.trim()) return;
+    handleTodoUpdate(updatedTodo);
+    setCurrentView('show'); // Show the todo after submitting
+  };
+
+  const filteredTodos = todos.filter(todo =>
+    todo.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    todo.description.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Render the appropriate content based on currentView
+  const renderContent = () => {
+    switch (currentView) {
+      case 'editor':
+        return (
+          <TodoEditor
+            todo={selectedTodo}
+            onUpdate={handleTodoUpdate}
+            onDelete={handleTodoDelete}
+            onSubmit={handleSubmitTodo}
+          />
+        );
+      case 'show':
+        return (
+          <TodoShow
+            todo={selectedTodo}
+            onEdit={() => setCurrentView('editor')}
+            onDelete={handleTodoDelete}
+          />
+        );
+      default:
+        return (
+          <div className="flex flex-col items-center justify-center h-full">
+            <p className="text-gray-500">Select a todo to view details or add a new one by clicking on "+Todo"</p>
+          </div>
+        );
+    }
+  };
+
+  return (
+    <main className="flex min-h-screen bg-gray-50">
+      {/* Left sidebar - fixed */}
+      <div className="w-80 bg-white border-r border-gray-200 flex flex-col h-screen">
+        {/* Fixed header section */}
+        <div className="flex-shrink-0">
+          <div className="p-4 flex items-center">
+            <div className="bg-green-500 w-6 h-6 rounded-md flex items-center justify-center mr-2">
+              <div className="w-3 h-3 bg-white rotate-45"></div>
+            </div>
+            <span className="font-bold text-lg">TODO</span>
+          </div>
+
+          <div className="px-4 py-2">
+            <button
+              onClick={handleAddTodo}
+              className="px-4 py-2 bg-black text-white rounded-md flex items-center justify-center w-28"
+            >
+              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path>
+              </svg>
+              TODO
+            </button>
+          </div>
+
+          <div className="px-4 py-2">
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search className="h-4 w-4 text-gray-400" />
+              </div>
+              <input
+                type="text"
+                placeholder="Search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 pr-4 py-2 bg-gray-100 w-full rounded-full text-sm focus:outline-none text-black"
+              />
+            </div>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+
+        {/* Scrollable todo list */}
+        <div className="flex-1 overflow-y-auto">
+          <TodoList
+            todos={filteredTodos}
+            onTodoSelect={handleTodoSelect}
+            selectedTodoId={selectedTodo?._id}
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+        </div>
+      </div>
+
+      {/* Main content area - changes based on routing */}
+      <div className="flex-1 p-6 overflow-y-auto">
+        {renderContent()}
+      </div>
+    </main>
   );
 }
